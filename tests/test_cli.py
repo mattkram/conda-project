@@ -27,13 +27,13 @@ def test_known_commands():
     assert parser._positionals._actions[2].choices.keys() == set(ALL_COMMANDS)
 
 
-def test_no_command(capsys, monkeypatch):
-    monkeypatch.setattr("sys.argv", ["conda-project"])
-    with pytest.raises(SystemExit):
-        assert main() is None
-
-    out = capsys.readouterr().out
-    assert "conda-project [-h] [-V] command" in out
+@pytest.mark.parametrize("flag", [None, "--help"])
+def test_cli_display_help(run_cli, flag):
+    """Help is displayed if no arguments provided, or explicit flag provided."""
+    args = (flag,) if flag is not None else tuple()
+    result = run_cli(*args)
+    assert result.exit_code == 0
+    assert result.output.startswith("Usage:")
 
 
 @pytest.mark.parametrize("flag", ["-V", "--version"])
@@ -41,6 +41,13 @@ def test_cli_version(run_cli, flag: str):
     result = run_cli(flag)
     assert result.exit_code == 0
     assert f"conda-project {__version__}" in result.output
+
+
+def test_cli_command(run_cli):
+    # TODO: Remove once other commands are implemented
+    result = run_cli("dummy")
+    assert result.exit_code == 0
+    assert "REPLACEME" in result.output
 
 
 def test_no_env_yaml(tmp_path, monkeypatch, capsys):

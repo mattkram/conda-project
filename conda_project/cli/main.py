@@ -282,12 +282,16 @@ def main() -> int:
     default=False,
     help="Show the conda-prefix-replacement version number and exit.",
 )
-def new_cli(version: bool = False) -> int:
+@click.pass_context
+def new_cli(ctx: click.Context, version: bool = False) -> None:
     """Main entry-point into the `conda-project` command-line interface."""
     if version:
         click.echo(f"conda-project {__version__}")
-        return 0
-    return 1
+        ctx.exit()
+
+    if ctx.invoked_subcommand is None:
+        click.echo(ctx.get_help())
+        ctx.exit()
 
 
 @new_cli.command()
