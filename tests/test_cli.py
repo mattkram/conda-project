@@ -4,13 +4,22 @@
 from functools import partial
 from textwrap import dedent
 
+import click.testing
 import pytest
 
-from conda_project.cli.main import cli, main, parse_and_run
+from conda_project import __version__
+from conda_project.cli.main import cli, main, new_cli, parse_and_run
 
 PROJECT_COMMANDS = ("create", "check")
 ENVIRONMENT_COMMANDS = ("clean", "prepare", "lock")
 ALL_COMMANDS = PROJECT_COMMANDS + ENVIRONMENT_COMMANDS
+
+
+@pytest.fixture()
+def run_cli():
+    """A function to call the click CLI."""
+    runner = click.testing.CliRunner()
+    return partial(runner.invoke, new_cli)
 
 
 def test_known_commands():
@@ -25,6 +34,13 @@ def test_no_command(capsys, monkeypatch):
 
     out = capsys.readouterr().out
     assert "conda-project [-h] [-V] command" in out
+
+
+@pytest.mark.parametrize("flag", ["-V", "--version"])
+def test_cli_version(run_cli, flag: str):
+    result = run_cli(flag)
+    assert result.exit_code == 0
+    assert f"conda-project {__version__}" in result.output
 
 
 def test_no_env_yaml(tmp_path, monkeypatch, capsys):

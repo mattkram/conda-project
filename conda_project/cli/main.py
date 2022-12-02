@@ -6,6 +6,8 @@ from __future__ import annotations
 import typing
 from argparse import ArgumentParser
 
+import click
+
 from conda_project import __version__
 
 from ..project import DEFAULT_PLATFORMS
@@ -266,3 +268,28 @@ def main() -> int:
 
     retcode = parse_and_run(args)
     return retcode
+
+
+@click.group(
+    name="conda-project",
+    help="Tool for encapsulating, running, and reproducing projects with conda environments",
+    invoke_without_command=True,
+)
+@click.option(
+    "--version",
+    "-V",
+    is_flag=True,
+    default=False,
+    help="Show the conda-prefix-replacement version number and exit.",
+)
+def new_cli(version: bool = False) -> int:
+    """Main entry-point into the `conda-project` command-line interface."""
+    if version:
+        click.echo(f"conda-project {__version__}")
+        return 0
+    return 1
+
+
+@new_cli.command()
+def dummy():
+    click.echo("REPLACEME")
