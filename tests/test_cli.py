@@ -16,8 +16,9 @@ ALL_COMMANDS = PROJECT_COMMANDS + ENVIRONMENT_COMMANDS
 
 
 @pytest.fixture()
-def run_cli():
+def run_cli(tmp_path, monkeypatch):
     """A function to call the click CLI."""
+    monkeypatch.chdir(tmp_path)
     runner = click.testing.CliRunner()
     return partial(runner.invoke, new_cli)
 
