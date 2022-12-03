@@ -18,6 +18,8 @@ if typing.TYPE_CHECKING:
     # in argparse from affecting at runtime
     from argparse import _SubParsersAction
 
+LEGACY_COMMANDS = {"create", "lock", "prepare", "check", "clean"}
+
 
 def cli() -> ArgumentParser:
     """Construct the command-line argument parser."""
@@ -261,13 +263,13 @@ def main() -> int:
     """Main entry-point into the `conda-project` command-line interface."""
     import sys
 
-    if len(sys.argv) == 1:
-        args = ["-h"]
-    else:
-        args = sys.argv[1:]
+    # Forward all legacy commands to the old parser temporary
+    # TODO: Remove once all subcommands migrated to click
+    if len(sys.argv) > 1 and sys.argv[1] in LEGACY_COMMANDS:
+        retcode = parse_and_run(sys.argv[1:])
+        return retcode
 
-    retcode = parse_and_run(args)
-    return retcode
+    return new_cli()
 
 
 @click.group(
