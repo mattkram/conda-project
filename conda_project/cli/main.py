@@ -301,7 +301,8 @@ def dummy():
     click.echo("REPLACEME")
 
 
-# )
+@new_cli.command(help="Create a new project")
+@click.option("--name", "-n", default=None, help="Name for the project.")
 # p.add_argument(
 #     "-c",
 #     "--channel",
@@ -330,14 +331,17 @@ def dummy():
 #     action="store",
 #     default=None,
 # )
-# p.add_argument(
-#     "--no-lock", help="Do not create the conda-lock.yml file", action="store_true"
-# )
-# p.add_argument(
-#     "--prepare",
-#     help="Create the local Conda environment for the current platform.",
-#     action="store_true",
-# )
+@click.option(
+    "--lock/--no-lock",
+    default=True,
+    help="Create the conda-lock.yml file",
+)
+@click.option(
+    "--prepare",
+    is_flag=True,
+    default=False,
+    help="Create the local Conda environment for the current platform.",
+)
 # p.add_argument(
 #     "dependencies",
 #     help=(
@@ -348,17 +352,7 @@ def dummy():
 #     nargs="*",
 #     metavar="PACKAGE_SPECIFICATION",
 # )
-
-
-@new_cli.command(help="Create a new project")
-@click.option("--name", "-n", default=None, help="Name for the project.")
-@click.option(
-    "--prepare",
-    is_flag=True,
-    default=False,
-    help="Create the local Conda environment for the current platform.",
-)
-def create(name: str, prepare: bool):
+def create(name: str, lock: bool, prepare: bool):
     args = Namespace(
         directory=".",
         name=name,
@@ -367,6 +361,6 @@ def create(name: str, prepare: bool):
         channel=None,
         platforms=",".join(sorted(DEFAULT_PLATFORMS)),
         prepare=prepare,
-        no_lock=False,
+        no_lock=not lock,
     )
     return commands.create(args)

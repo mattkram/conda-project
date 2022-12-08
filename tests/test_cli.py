@@ -57,13 +57,28 @@ def test_cli_command(run_cli):
 
 def test_cli_create(run_cli, tmp_path):
     """When we use `conda project create`, three files are generated."""
-    filenames = ["conda-project.yml", "environment.yml", ".condarc"]
+    filenames = [
+        "conda-project.yml",
+        "environment.yml",
+        ".condarc",
+        "default.conda-lock.yml",
+    ]
     for f in filenames:
         assert not (tmp_path / f).exists()
     result = run_cli("create")
     assert result.exit_code == 0
     for f in filenames:
         assert (tmp_path / f).exists()
+
+
+def test_cli_create_no_lock(run_cli, tmp_path):
+    """When we use `conda project create --no-lock`, The conda-lock file is not generated."""
+    lockfile_path = tmp_path / "default.conda-lock.yml"
+    assert not lockfile_path.exists()
+    result = run_cli("create", "--no-lock")
+    assert result.exit_code == 0
+    # Still doesn't exist
+    assert not lockfile_path.exists()
 
 
 def test_create_with_prepare(run_cli, tmp_path):
