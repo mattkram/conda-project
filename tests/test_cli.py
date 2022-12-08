@@ -124,6 +124,19 @@ def test_create_with_conda_configs(run_cli, tmp_path):
     }
 
 
+def test_create_with_dependencies(run_cli, tmp_path):
+    """When we create with package spec, those are embedded into the environment.yml."""
+    result = run_cli(
+        "create",
+        "python=3.10",
+        "numpy",
+    )
+    assert result.exit_code == 0
+    with (tmp_path / "environment.yml").open() as fp:
+        data = yaml.safe_load(fp)
+    assert data["dependencies"] == ["python=3.10", "numpy"]
+
+
 def test_no_env_yaml(tmp_path, monkeypatch, capsys):
     monkeypatch.chdir(tmp_path)
 

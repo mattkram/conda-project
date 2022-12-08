@@ -301,7 +301,7 @@ def dummy():
     click.echo("REPLACEME")
 
 
-@new_cli.command(help="Create a new project")
+@new_cli.command(help="Create a new project from the optional PACKAGE_SPECIFICATION.")
 @click.option("--name", "-n", default=None, help="Name for the project.")
 @click.option(
     "channels",
@@ -338,16 +338,11 @@ def dummy():
     default=False,
     help="Create the local Conda environment for the current platform.",
 )
-# p.add_argument(
-#     "dependencies",
-#     help=(
-#         "Packages to add to the environment.yml. The format for each package is '<name>[<op><version>]' "
-#         "where <op> can be =, <, >, <=, or >=."
-#     ),
-#     action="store",
-#     nargs="*",
-#     metavar="PACKAGE_SPECIFICATION",
-# )
+@click.argument(
+    "dependencies",
+    nargs=-1,
+    metavar="PACKAGE_SPECIFICATION",
+)
 def create(
     name: str,
     channels: tuple[str],
@@ -355,12 +350,13 @@ def create(
     conda_configs: str | None,
     lock: bool,
     prepare: bool,
+    dependencies: tuple[str],
 ):
     # TODO: Need to handle directory appropriately
     args = Namespace(
         directory=".",
         name=name,
-        dependencies=[],
+        dependencies=list(dependencies),
         conda_configs=conda_configs,
         channel=list(channels),
         platforms=platforms,
