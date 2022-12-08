@@ -18,7 +18,7 @@ if typing.TYPE_CHECKING:
     # in argparse from affecting at runtime
     from argparse import _SubParsersAction
 
-LEGACY_COMMANDS = {"create", "lock", "prepare", "check", "clean"}
+LEGACY_COMMANDS = {"lock", "prepare", "check", "clean"}
 
 
 def cli() -> ArgumentParser:
