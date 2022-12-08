@@ -6,6 +6,7 @@ from textwrap import dedent
 
 import click.testing
 import pytest
+import yaml
 
 from conda_project import __version__
 from conda_project.cli.main import cli, main, new_cli, parse_and_run
@@ -85,6 +86,15 @@ def test_create_with_prepare(run_cli, tmp_path):
     result = run_cli("create", "--prepare")
     assert result.exit_code == 0
     assert (tmp_path / "envs" / "default" / "conda-meta" / "history").exists()
+
+
+def test_create_with_channels(run_cli, tmp_path):
+    """When we create with channels, those are embedded into the environment.yml in the order provided."""
+    result = run_cli("create", "-c", "pyviz", "--channel", "main")
+    assert result.exit_code == 0
+    with (tmp_path / "environment.yml").open() as fp:
+        data = yaml.safe_load(fp)
+    assert data["channels"] == ["pyviz", "main"]
 
 
 def test_no_env_yaml(tmp_path, monkeypatch, capsys):

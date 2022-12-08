@@ -303,15 +303,16 @@ def dummy():
 
 @new_cli.command(help="Create a new project")
 @click.option("--name", "-n", default=None, help="Name for the project.")
-# p.add_argument(
-#     "-c",
-#     "--channel",
-#     help=(
-#         "Additional channel to search for packages. The default channel is 'defaults'. "
-#         "Multiple channels are added with repeated use of this argument."
-#     ),
-#     action="append",
-# )
+@click.option(
+    "channels",
+    "--channel",
+    "-c",
+    help=(
+        "Additional channel to search for packages. The default channel is 'defaults'. "
+        "Multiple channels are added with repeated use of this argument."
+    ),
+    multiple=True,
+)
 # p.add_argument(
 #     "--platforms",
 #     help=(
@@ -352,13 +353,13 @@ def dummy():
 #     nargs="*",
 #     metavar="PACKAGE_SPECIFICATION",
 # )
-def create(name: str, lock: bool, prepare: bool):
+def create(name: str, channels: tuple[str], lock: bool, prepare: bool):
     args = Namespace(
         directory=".",
         name=name,
         dependencies=[],
         conda_configs=None,
-        channel=None,
+        channel=list(channels),
         platforms=",".join(sorted(DEFAULT_PLATFORMS)),
         prepare=prepare,
         no_lock=not lock,
