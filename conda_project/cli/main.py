@@ -4,7 +4,7 @@
 from __future__ import annotations
 
 import typing
-from argparse import ArgumentParser
+from argparse import ArgumentParser, Namespace
 
 import click
 
@@ -45,7 +45,7 @@ def cli() -> ArgumentParser:
 
     subparsers = p.add_subparsers(metavar="command", required=True)
 
-    _create_create_parser(subparsers, common)
+    # _create_create_parser(subparsers, common)
     _create_lock_parser(subparsers, common)
     _create_check_parser(subparsers, common)
     _create_prepare_parser(subparsers, common)
@@ -299,3 +299,74 @@ def new_cli(ctx: click.Context, version: bool = False) -> None:
 @new_cli.command()
 def dummy():
     click.echo("REPLACEME")
+
+
+# )
+# p.add_argument(
+#     "-c",
+#     "--channel",
+#     help=(
+#         "Additional channel to search for packages. The default channel is 'defaults'. "
+#         "Multiple channels are added with repeated use of this argument."
+#     ),
+#     action="append",
+# )
+# p.add_argument(
+#     "--platforms",
+#     help=(
+#         f"Comma separated list of platforms for which to lock dependencies. "
+#         f"The default is {','.join(DEFAULT_PLATFORMS)}"
+#     ),
+#     action="store",
+#     default=",".join(DEFAULT_PLATFORMS),
+# )
+# p.add_argument(
+#     "--conda-configs",
+#     help=(
+#         "Comma separated list of Conda configuration parameters to write into the "
+#         ".condarc file in the project directory. The format for each config is key=value. "
+#         "For example --conda-configs experimental_solver=libmamba,channel_priority=strict"
+#     ),
+#     action="store",
+#     default=None,
+# )
+# p.add_argument(
+#     "--no-lock", help="Do not create the conda-lock.yml file", action="store_true"
+# )
+# p.add_argument(
+#     "--prepare",
+#     help="Create the local Conda environment for the current platform.",
+#     action="store_true",
+# )
+# p.add_argument(
+#     "dependencies",
+#     help=(
+#         "Packages to add to the environment.yml. The format for each package is '<name>[<op><version>]' "
+#         "where <op> can be =, <, >, <=, or >=."
+#     ),
+#     action="store",
+#     nargs="*",
+#     metavar="PACKAGE_SPECIFICATION",
+# )
+
+
+@new_cli.command(help="Create a new project")
+@click.option("--name", "-n", default=None, help="Name for the project.")
+@click.option(
+    "--prepare",
+    is_flag=True,
+    default=False,
+    help="Create the local Conda environment for the current platform.",
+)
+def create(name: str, prepare: bool):
+    args = Namespace(
+        directory=".",
+        name=name,
+        dependencies=[],
+        conda_configs=None,
+        channel=None,
+        platforms=",".join(sorted(DEFAULT_PLATFORMS)),
+        prepare=prepare,
+        no_lock=False,
+    )
+    return commands.create(args)

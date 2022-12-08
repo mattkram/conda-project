@@ -10,7 +10,7 @@ import pytest
 from conda_project import __version__
 from conda_project.cli.main import cli, main, new_cli, parse_and_run
 
-PROJECT_COMMANDS = ("create", "check")
+PROJECT_COMMANDS = ("check",)
 ENVIRONMENT_COMMANDS = ("clean", "prepare", "lock")
 ALL_COMMANDS = PROJECT_COMMANDS + ENVIRONMENT_COMMANDS
 
@@ -20,7 +20,11 @@ def run_cli(tmp_path, monkeypatch):
     """A function to call the click CLI."""
     monkeypatch.chdir(tmp_path)
     runner = click.testing.CliRunner()
-    return partial(runner.invoke, new_cli)
+
+    def _run_cli(*args):
+        return runner.invoke(new_cli, args)
+
+    return _run_cli
 
 
 def test_known_commands():
@@ -49,6 +53,23 @@ def test_cli_command(run_cli):
     result = run_cli("dummy")
     assert result.exit_code == 0
     assert "REPLACEME" in result.output
+
+
+def test_cli_create(run_cli, tmp_path):
+    """When we use `conda project create`, three files are generated."""
+    filenames = ["conda-project.yml", "environment.yml", ".condarc"]
+    for f in filenames:
+        assert not (tmp_path / f).exists()
+    result = run_cli("create")
+    assert result.exit_code == 0
+    for f in filenames:
+        assert (tmp_path / f).exists()
+
+
+def test_create_with_prepare(run_cli, tmp_path):
+    result = run_cli("create", "--prepare")
+    assert result.exit_code == 0
+    assert (tmp_path / "envs" / "default" / "conda-meta" / "history").exists()
 
 
 def test_no_env_yaml(tmp_path, monkeypatch, capsys):
@@ -120,14 +141,6 @@ def test_cli_verbose_project(command, monkeypatch, project_directory_factory):
     monkeypatch.setattr(f"conda_project.project.CondaProject.{command}", mocked_action)
 
     _ = parse_and_run([command, "--directory", str(project_path)])
-
-
-def test_create_with_prepare(tmp_path):
-    ret = parse_and_run(["create", "--directory", str(tmp_path), "--prepare"])
-
-    assert ret == 0
-
-    assert (tmp_path / "envs" / "default" / "conda-meta" / "history").exists()
 
 
 @pytest.mark.parametrize("command", ENVIRONMENT_COMMANDS)
