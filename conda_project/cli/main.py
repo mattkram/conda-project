@@ -313,15 +313,11 @@ def dummy():
     ),
     multiple=True,
 )
-# p.add_argument(
-#     "--platforms",
-#     help=(
-#         f"Comma separated list of platforms for which to lock dependencies. "
-#         f"The default is {','.join(DEFAULT_PLATFORMS)}"
-#     ),
-#     action="store",
-#     default=",".join(DEFAULT_PLATFORMS),
-# )
+@click.option(
+    "--platforms",
+    help="Comma separated list of platforms for which to lock dependencies.",
+    default=",".join(DEFAULT_PLATFORMS),
+)
 # p.add_argument(
 #     "--conda-configs",
 #     help=(
@@ -353,14 +349,14 @@ def dummy():
 #     nargs="*",
 #     metavar="PACKAGE_SPECIFICATION",
 # )
-def create(name: str, channels: tuple[str], lock: bool, prepare: bool):
+def create(name: str, channels: tuple[str], platforms: str, lock: bool, prepare: bool):
     args = Namespace(
         directory=".",
         name=name,
         dependencies=[],
         conda_configs=None,
         channel=list(channels),
-        platforms=",".join(sorted(DEFAULT_PLATFORMS)),
+        platforms=platforms,
         prepare=prepare,
         no_lock=not lock,
     )
