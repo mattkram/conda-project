@@ -107,6 +107,23 @@ def test_create_with_platforms(run_cli, tmp_path):
     assert data["platforms"] == ["osx-64", "linux-64"]
 
 
+def test_create_with_conda_configs(run_cli, tmp_path):
+    """When we create with platforms, those are embedded into the environment.yml."""
+    # TODO: Should we accept multiple here instead of using a CSV string?
+    result = run_cli(
+        "create",
+        "--conda-configs",
+        "experimental_solver=libmamba,channel_priority=strict",
+    )
+    assert result.exit_code == 0
+    with (tmp_path / ".condarc").open() as fp:
+        data = yaml.safe_load(fp)
+    assert data == {
+        "experimental_solver": "libmamba",
+        "channel_priority": "strict",
+    }
+
+
 def test_no_env_yaml(tmp_path, monkeypatch, capsys):
     monkeypatch.chdir(tmp_path)
 

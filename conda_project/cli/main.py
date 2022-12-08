@@ -318,16 +318,15 @@ def dummy():
     help="Comma separated list of platforms for which to lock dependencies.",
     default=",".join(DEFAULT_PLATFORMS),
 )
-# p.add_argument(
-#     "--conda-configs",
-#     help=(
-#         "Comma separated list of Conda configuration parameters to write into the "
-#         ".condarc file in the project directory. The format for each config is key=value. "
-#         "For example --conda-configs experimental_solver=libmamba,channel_priority=strict"
-#     ),
-#     action="store",
-#     default=None,
-# )
+@click.option(
+    "--conda-configs",
+    help=(
+        "Comma separated list of Conda configuration parameters to write into the "
+        ".condarc file in the project directory. The format for each config is key=value. "
+        "For example --conda-configs experimental_solver=libmamba,channel_priority=strict"
+    ),
+    default=None,
+)
 @click.option(
     "--lock/--no-lock",
     default=True,
@@ -349,12 +348,20 @@ def dummy():
 #     nargs="*",
 #     metavar="PACKAGE_SPECIFICATION",
 # )
-def create(name: str, channels: tuple[str], platforms: str, lock: bool, prepare: bool):
+def create(
+    name: str,
+    channels: tuple[str],
+    platforms: str,
+    conda_configs: str | None,
+    lock: bool,
+    prepare: bool,
+):
+    # TODO: Need to handle directory appropriately
     args = Namespace(
         directory=".",
         name=name,
         dependencies=[],
-        conda_configs=None,
+        conda_configs=conda_configs,
         channel=list(channels),
         platforms=platforms,
         prepare=prepare,
