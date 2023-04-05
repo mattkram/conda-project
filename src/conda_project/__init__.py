@@ -1,11 +1,9 @@
 # -*- coding: utf-8 -*-
 # Copyright (C) 2022 Anaconda, Inc
 # SPDX-License-Identifier: BSD-3-Clause
+import importlib.metadata
 
-try:
-    from ._version import __version__
-except ImportError:
-    __version__ = "unknown"
+__version__ = importlib.metadata.version("conda-project")
 
 # flake8: noqa
 from .exceptions import CondaProjectError
